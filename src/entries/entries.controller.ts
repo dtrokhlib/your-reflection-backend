@@ -1,6 +1,7 @@
-import { Controller, Get, Param, ParseIntPipe, Res } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Post, Res } from '@nestjs/common';
 import { EntriesService } from './entries.service.js';
 import { HttpError } from '../modules/HttpError.js';
+import { CreateEntryDto } from './dto/create-entry.dto.js';
 
 type GetByIdParam = {
   id: string;
@@ -23,5 +24,10 @@ export class EntriesController {
     } catch(err: any) {
       response.status(err.status).send(err.message);
     }
+  }
+
+  @Post()
+  createEntry(@Body() dto: CreateEntryDto) {
+    this.entriesService.createEntry(dto);
   }
 }
