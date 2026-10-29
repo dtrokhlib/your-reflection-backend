@@ -1,36 +1,42 @@
-import { Injectable } from '@nestjs/common';
-import { HttpError } from '../modules/HttpError.js';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateEntryDto } from './dto/create-entry.dto.js';
-
-type EntryItem = {
-  id: number;
-  title: string;
-  content: string;
-}
+import { DATABASE } from '../database/database.provider.js';
+import { entries } from '../database/schema.js';
+import { eq } from 'drizzle-orm';
+import type { DatabaseType } from '../database/database.provider.js';
 
 @Injectable()
 export class EntriesService {
-  private entries: EntryItem[] = [];
+  constructor(@Inject(DATABASE) private readonly db: DatabaseType) {}
 
   getEntries() {
-    return this.entries;
+    return this.db.select().from(entries);
   }
 
-  getEntry(id: number) {
-    const entry = this.entries.find((entry) => entry.id === id);
-    if (entry) {
-      return entry;
+  async getEntry(id: number) {
+    const [entry] = await this.db
+      .select()
+      .from(entries)
+      .where(eq(entries.id, id))
+      .limit(1);
+
+    if (!entry) {
+      throw new NotFoundException(`Entry ${id} not found`);
     }
 
-    throw new HttpError(`Entry with id ${id} is not found`, 404);
+    return entry;
   }
 
-  createEntry(dto: CreateEntryDto) {
-    const entry = {
-      id: this.entries.length + 1,
-      ...dto,
-    };
+  async createEntry(dto: CreateEntryDto) {
+    const [entry] = await this.db
+      .insert(entries)
+      .values({
+        title: dto.title,
+        content: dto.content,
+      })
+      .returning();
 
-    this.entries.push(entry);
+    return entry;
   }
 }
+

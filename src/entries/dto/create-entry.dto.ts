@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class CreateEntryDto {
   @IsString()
@@ -9,4 +9,8 @@ export class CreateEntryDto {
   @IsString()
   @IsNotEmpty()
   content: string;
+
+  @IsString()
+  @IsOptional()
+  mood?: string;
 }

@@ -1,0 +1,14 @@
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: journal
+      POSTGRES_PASSWORD: journal
+      POSTGRES_DB: journal
+    ports:
+      - "5433:5432"
+    volumes:
+      - journal_postgres:/var/lib/postgresql/data
+
+volumes:
+  journal_postgres:
