@@ -4,6 +4,7 @@ import { DATABASE } from '../database/database.provider.js';
 import { entries } from '../database/schema.js';
 import { eq } from 'drizzle-orm';
 import type { DatabaseType } from '../database/database.provider.js';
+import { UpdateEntryDto } from './dto/update-entry.dto.js';
 
 @Injectable()
 export class EntriesService {
@@ -11,6 +12,20 @@ export class EntriesService {
 
   getEntries() {
     return this.db.select().from(entries);
+  }
+
+  async updateEntry(id: number, body: UpdateEntryDto) {
+    return this.db
+      .update(entries)
+      .set({ ...body })
+      .where(eq(entries.id, id))
+      .returning();
+  }
+
+  async deleteEntry(id: number) {
+    return await this.db
+      .delete(entries)
+      .where(eq(entries.id, id))
   }
 
   async getEntry(id: number) {
